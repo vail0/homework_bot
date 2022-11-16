@@ -1,9 +1,9 @@
 import logging
 import os
-import requests
-import telegram
 import time
 
+import requests
+import telegram
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,7 +16,7 @@ TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 token_list = (
     PRACTICUM_TOKEN,
     TELEGRAM_TOKEN,
-    TELEGRAM_CHAT_ID,    
+    TELEGRAM_CHAT_ID,
 )
 
 RETRY_TIME = 600
@@ -37,17 +37,22 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+
 def send_message(bot, message):
+    """Отправка сообщения в телеграмм"""
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.info(f'Message \'{message}\' sent')
     except Exception as error:
         logger.error(f'Бот не смог отправить сообщение: ошибка {error}')
 
-# print(send_message(bot = telegram.Bot(token=TELEGRAM_TOKEN), message = 'test_message'))
+
+# print(send_message(bot = telegram.Bot(token=TELEGRAM_TOKEN),
+#       message = 'test_message'))
+
 
 def get_api_answer(current_timestamp):
-    '''Получение ответа от Яндекс Практикума'''
+    """Получение ответа от Яндекс Практикума"""
     url = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
     headers = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
     timestamp = current_timestamp or int(time.time())
@@ -62,7 +67,7 @@ def get_api_answer(current_timestamp):
 
 
 def check_response(response):
-    '''Проверка корректности полученого json ответа'''
+    """Проверка корректности полученого json ответа"""
     try:
         resp = response.get('homeworks')
         if resp == []:
@@ -71,7 +76,7 @@ def check_response(response):
         else:
             logging.info('')
             return resp[0]
-    except:
+    except Exception:
         logging.error('Ошибка в присланной форме ответа')
         return None
 
@@ -80,7 +85,7 @@ def check_response(response):
 # print(check_response(get_api_answer(1668164848)))
 
 def parse_status(homework):
-    '''Перевод статуса дз из json на человеческий язык'''
+    """Перевод статуса дз из json на человеческий язык"""
     homework_name = homework.get('homework_name')
     homework_status = homework.get('status')
 
@@ -94,24 +99,27 @@ def parse_status(homework):
 # print(parse_status(check_response(get_api_answer(1549962000))))
 # print(parse_status(check_response(get_api_answer(1668164848))))
 
+
 def namestr(obj, namespace):
+    """Извлечение названия переменной."""
     return [name for name in namespace if namespace[name] is obj]
 
+
 def check_tokens():
-    ''' Проверка наличия токенов пользователя'''
+    """Проверка наличия токенов пользователя"""
     for token in token_list:
         if len(token) == 0:
             logger.critical(f'Отсутствует {namestr(token, globals())[0]}')
             return False
-        else:    
+        else:
             logger.debug(f'{namestr(token, globals())[0]} существует')
     return True
 
 # check_tokens()
 
+
 def main():
     """Основная логика работы бота."""
-
     if check_tokens() is False:
         raise Exception('Остутствуют ключи')
 
