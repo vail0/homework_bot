@@ -73,13 +73,15 @@ def check_response(response):
         resp = response.get('homeworks')
         if resp == []:
             logging.error('Нет дз за указанный период')
-            return None
+            # return None
+            raise Exception('Отсутствует дз за текущий срок')
         else:
             logging.info('')
             return resp[0]
     except Exception:
         logging.error('Ошибка в присланной форме ответа')
-        return None
+        # return None
+        raise Exception('Прислан неверная форма')
 
 
 # print(check_response(get_api_answer(1549962000)))
