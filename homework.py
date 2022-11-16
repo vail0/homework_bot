@@ -73,18 +73,22 @@ def check_response(response):
         resp = response.get('homeworks')
         if resp == []:
             logging.error('Нет дз за указанный период')
-            return None
+            raise Exception('Словарь пуст')
+
+        elif not isinstance(response['homeworks'], list):
+            raise TypeError('Убедитесь, что передаётся список в словаре')
+
         else:
             logging.info('')
-            return resp[0]
-
+            return resp
     except Exception:
         logging.error('Ошибка в присланной форме ответа')
         # return None
         if not isinstance(response, dict):
             raise TypeError('Убедитесь, что передаётся словарь')
+
         else:
-            raise Exception('Прислана неверная форма')
+            raise KeyError('Прислана неверная форма')
 
 
 # print(check_response(get_api_answer(1549962000)))
@@ -92,15 +96,16 @@ def check_response(response):
 
 def parse_status(homework):
     """Перевод статуса дз из json на человеческий язык."""
-    try:
-        homework_name = homework['homework_name']
-        homework_status = homework['status']
-    except AttributeError:
-        raise Exception('Ошибка получения статуса или имени')
+    if 'homework_name' not in homework.keys():
+        raise KeyError('Ошибка получения статуса или имени')
+    homework_name = homework['homework_name']
 
-    if (homework_name is None) or (homework_status is None):
-        raise Exception(f'Имя или статус отсутсвуют {homework}')
+    if 'status' not in homework.keys():
+        raise KeyError('Ошибка получения статуса')
+    homework_status = homework['status']
 
+    if homework_status not in HOMEWORK_STATUSES.keys():
+        raise KeyError('Передан некорректный статус')
     verdict = HOMEWORK_STATUSES[homework_status]
 
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
@@ -144,10 +149,10 @@ def main():
         try:
             response = get_api_answer(current_timestamp)
             homework = check_response(response)
-            if homework is not None:
-                message = parse_status(homework)
-            else:
-                message = 'Нет ответа'
+            # if homework is not None:
+            message = parse_status(homework)
+            # else:
+            #     message = 'Нет ответа'
 
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
