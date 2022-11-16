@@ -78,10 +78,12 @@ def check_response(response):
         else:
             logging.info('')
             return resp[0]
+    except TypeError:
+        raise TypeError('Убедитесь, что передаётся словарь')
     except Exception:
         logging.error('Ошибка в присланной форме ответа')
         # return None
-        raise Exception('Прислан неверная форма')
+        raise Exception('Прислана неверная форма')
 
 
 # print(check_response(get_api_answer(1549962000)))
