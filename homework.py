@@ -74,7 +74,6 @@ def check_response(response):
         if resp == []:
             logging.error('Нет дз за указанный период')
             return None
-            # raise Exception('Отсутствует дз за текущий срок')
         else:
             logging.info('')
             return resp[0]
@@ -93,8 +92,8 @@ def check_response(response):
 
 def parse_status(homework):
     """Перевод статуса дз из json на человеческий язык."""
-    homework_name = homework.get('homework_name')
-    homework_status = homework.get('status')
+    homework_name = homework.['homework_name']
+    homework_status = homework.get['status']
 
     if (homework_name is None) or (homework_status is None):
         raise Exception(f'Имя или статус отсутсвуют {homework}')
