@@ -39,7 +39,7 @@ logger.setLevel(logging.INFO)
 
 
 def send_message(bot, message):
-    """Отправка сообщения в телеграмм"""
+    """Отправка сообщения в телеграмм."""
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.info(f'Message \'{message}\' sent')
@@ -52,7 +52,7 @@ def send_message(bot, message):
 
 
 def get_api_answer(current_timestamp):
-    """Получение ответа от Яндекс Практикума"""
+    """Получение ответа от Яндекс Практикума."""
     url = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
     headers = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
     timestamp = current_timestamp or int(time.time())
@@ -67,7 +67,7 @@ def get_api_answer(current_timestamp):
 
 
 def check_response(response):
-    """Проверка корректности полученого json ответа"""
+    """Проверка корректности полученого json ответа."""
     try:
         resp = response.get('homeworks')
         if resp == []:
@@ -85,7 +85,7 @@ def check_response(response):
 # print(check_response(get_api_answer(1668164848)))
 
 def parse_status(homework):
-    """Перевод статуса дз из json на человеческий язык"""
+    """Перевод статуса дз из json на человеческий язык."""
     homework_name = homework.get('homework_name')
     homework_status = homework.get('status')
 
@@ -106,7 +106,7 @@ def namestr(obj, namespace):
 
 
 def check_tokens():
-    """Проверка наличия токенов пользователя"""
+    """Проверка наличия токенов пользователя."""
     for token in token_list:
         if len(token) == 0:
             logger.critical(f'Отсутствует {namestr(token, globals())[0]}')
