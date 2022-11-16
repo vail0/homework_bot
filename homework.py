@@ -109,33 +109,31 @@ def check_tokens():
 
 # check_tokens()
 
-# def main():
-#     """Основная логика работы бота."""
+def main():
+    """Основная логика работы бота."""
 
-#     if check_response() is False:
-#         pass
+    if check_tokens() is False:
+        raise Exception('Остутствуют ключи')
 
-#     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-#     current_timestamp = int(time.time())
+    bot = telegram.Bot(token=TELEGRAM_TOKEN)
+    current_timestamp = int(time.time())
 
-#     ...
+    while True:
+        try:
+            response = get_api_answer(current_timestamp)
+            homework = check_response(response)
+            if homework is not None:
+                message = parse_status(homework)
+            else:
+                message = 'Нет ответа'
 
-#     while True:
-#         try:
-#             response = ...
+        except Exception as error:
+            message = f'Сбой в работе программы: {error}'
 
-#             ...
-
-#             current_timestamp = ...
-#             time.sleep(RETRY_TIME)
-
-#         except Exception as error:
-#             message = f'Сбой в работе программы: {error}'
-#             ...
-#             time.sleep(RETRY_TIME)
-#         else:
-#             ...
+        finally:
+            send_message(bot, message)
+            time.sleep(RETRY_TIME)
 
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
