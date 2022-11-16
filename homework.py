@@ -107,7 +107,7 @@ def check_tokens():
         TELEGRAM_CHAT_ID,
     )
     for token in token_list:
-        if (len(token) == 0):
+        if token is None:
             logger.critical(f'Отсутствует {namestr(token, globals())[0]}')
             return False
         else:
