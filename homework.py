@@ -92,8 +92,11 @@ def check_response(response):
 
 def parse_status(homework):
     """Перевод статуса дз из json на человеческий язык."""
-    homework_name = homework['homework_name']
-    homework_status = homework['status']
+    try:
+        homework_name = homework['homework_name']
+        homework_status = homework['status']
+    except Exception:
+        raise Exception('Ошибка получения статуса или имени')
 
     if (homework_name is None) or (homework_status is None):
         raise Exception(f'Имя или статус отсутсвуют {homework}')
