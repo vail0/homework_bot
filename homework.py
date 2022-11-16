@@ -108,7 +108,7 @@ def namestr(obj, namespace):
 def check_tokens():
     """Проверка наличия токенов пользователя."""
     for token in token_list:
-        if (len(token) == 0) or token is None:
+        if (len(token) == 0):
             logger.critical(f'Отсутствует {namestr(token, globals())[0]}')
             return False
         else:
