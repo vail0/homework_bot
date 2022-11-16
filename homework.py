@@ -73,8 +73,8 @@ def check_response(response):
         resp = response.get('homeworks')
         if resp == []:
             logging.error('Нет дз за указанный период')
-            # return None
-            raise Exception('Отсутствует дз за текущий срок')
+            return None
+            # raise Exception('Отсутствует дз за текущий срок')
         else:
             logging.info('')
             return resp[0]
