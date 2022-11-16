@@ -52,8 +52,10 @@ def get_api_answer(current_timestamp):
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp}
     try:
-        homework_statuses = requests.get(url, headers=headers, params=params)
-        return homework_statuses.json()
+        hw_statuses = requests.get(url, headers=headers, params=params)
+        if hw_statuses.status_code != 200:
+            raise Exception(f'Получен Неверный код {hw_statuses.status_code}')
+        return hw_statuses.json()
     except Exception as error:
         logging.error(f'Ошибка при запросе к API Яндекса {error}')
 
