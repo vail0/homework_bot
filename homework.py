@@ -54,12 +54,13 @@ def get_api_answer(current_timestamp):
     try:
         hw_statuses = requests.get(url, headers=headers, params=params)
 
-        # if hw_statuses.status_code != 200:
+        if hw_statuses.status_code != 200:
+            raise Exception(f'Получен Неверный код {hw_statuses.status_code}')
+        else:
+            return hw_statuses.json()
 
-        return hw_statuses.json()
     except Exception as error:
         logging.error(f'Ошибка при запросе к API Яндекса {error}')
-        raise Exception(f'Получен Неверный код {hw_statuses.status_code}')
 
 
 # print(get_api_answer(1549962000))
