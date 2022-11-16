@@ -13,12 +13,6 @@ PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
-token_list = (
-    PRACTICUM_TOKEN,
-    TELEGRAM_TOKEN,
-    TELEGRAM_CHAT_ID,
-)
-
 RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
@@ -107,6 +101,11 @@ def namestr(obj, namespace):
 
 def check_tokens():
     """Проверка наличия токенов пользователя."""
+    token_list = (
+        PRACTICUM_TOKEN,
+        TELEGRAM_TOKEN,
+        TELEGRAM_CHAT_ID,
+    )
     for token in token_list:
         if (len(token) == 0):
             logger.critical(f'Отсутствует {namestr(token, globals())[0]}')
