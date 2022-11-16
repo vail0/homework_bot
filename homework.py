@@ -64,12 +64,20 @@ def get_api_answer(current_timestamp):
 def check_response(response):
     '''Проверка корректности полученого json ответа'''
     try:
-        resp = response.get('homeworks')[0]
-        return resp
+        resp = response.get('homeworks')
+        if resp == []:
+            logging.error('Нет дз за указанный период')
+            return None
+        else:
+            logging.info('')
+            return resp[0]
     except:
-        return 'Нет дз за данный период'
+        logging.error('Ошибка в присланной форме ответа')
+        return None
+
 
 # print(check_response(get_api_answer(1549962000)))
+# print(check_response(get_api_answer(1668164848)))
 
 def parse_status(homework):
     '''Перевод статуса дз из json на человеческий язык'''
@@ -83,6 +91,9 @@ def parse_status(homework):
 
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
+# print(parse_status(check_response(get_api_answer(1549962000))))
+# print(parse_status(check_response(get_api_answer(1668164848))))
+
 def namestr(obj, namespace):
     return [name for name in namespace if namespace[name] is obj]
 
@@ -90,41 +101,41 @@ def check_tokens():
     ''' Проверка наличия токенов пользователя'''
     for token in token_list:
         if len(token) == 0:
-            logger.error(f'Отсутствует {namestr(token, globals())[0]}')
+            logger.critical(f'Отсутствует {namestr(token, globals())[0]}')
             return False
         else:    
-            print(f'{namestr(token, globals())[0]} существует')
+            logger.debug(f'{namestr(token, globals())[0]} существует')
     return True
 
 # check_tokens()
 
-def main():
-    """Основная логика работы бота."""
+# def main():
+#     """Основная логика работы бота."""
 
-    if check_response() is False:
-        pass
+#     if check_response() is False:
+#         pass
 
-    bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    current_timestamp = int(time.time())
+#     bot = telegram.Bot(token=TELEGRAM_TOKEN)
+#     current_timestamp = int(time.time())
 
-    ...
+#     ...
 
-    while True:
-        try:
-            response = ...
+#     while True:
+#         try:
+#             response = ...
 
-            ...
+#             ...
 
-            current_timestamp = ...
-            time.sleep(RETRY_TIME)
+#             current_timestamp = ...
+#             time.sleep(RETRY_TIME)
 
-        except Exception as error:
-            message = f'Сбой в работе программы: {error}'
-            ...
-            time.sleep(RETRY_TIME)
-        else:
-            ...
+#         except Exception as error:
+#             message = f'Сбой в работе программы: {error}'
+#             ...
+#             time.sleep(RETRY_TIME)
+#         else:
+#             ...
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
