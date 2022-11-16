@@ -95,7 +95,7 @@ def parse_status(homework):
     try:
         homework_name = homework['homework_name']
         homework_status = homework['status']
-    except Exception:
+    except AttributeError:
         raise Exception('Ошибка получения статуса или имени')
 
     if (homework_name is None) or (homework_status is None):
