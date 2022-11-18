@@ -5,6 +5,7 @@ import time
 import requests
 import telegram
 from dotenv import load_dotenv
+from http import HTTPStatus
 
 load_dotenv()
 
@@ -36,13 +37,9 @@ def send_message(bot, message):
     """Отправка сообщения в телеграмм."""
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
-        logger.info(f'Message \'{message}\' sent')
+        logger.info('Message was sent')
     except Exception as error:
         logger.error(f'Бот не смог отправить сообщение: ошибка {error}')
-
-
-# print(send_message(bot = telegram.Bot(token=TELEGRAM_TOKEN),
-#       message = 'test_message'))
 
 
 def get_api_answer(current_timestamp):
@@ -56,7 +53,7 @@ def get_api_answer(current_timestamp):
     except Exception as error:
         logging.error(f'Ошибка при запросе к API Яндекса {error}')
 
-    if hw_statuses.status_code != 200:
+    if hw_statuses.status_code != HTTPStatus.OK:
         raise Exception(f'Получен Неверный код {hw_statuses.status_code}')
 
     try:
@@ -64,59 +61,42 @@ def get_api_answer(current_timestamp):
     except Exception as error:
         raise Exception(f'Ошибка перевода в json {error}')
 
-# print(get_api_answer(1549962000))
-
 
 def check_response(response):
     """Проверка корректности полученого json ответа."""
     try:
         resp = response.get('homeworks')
-        if resp == []:
-            logging.error('Нет дз за указанный период')
-            raise Exception('Словарь пуст')
-
-        elif not isinstance(response['homeworks'], list):
-            raise TypeError('Убедитесь, что передаётся список в словаре')
-
-        else:
-            logging.info('')
-            return resp
     except Exception:
-        logging.error('Ошибка в присланной форме ответа')
-        # return None
         if not isinstance(response, dict):
             raise TypeError('Убедитесь, что передаётся словарь')
-
         else:
             raise KeyError('Прислана неверная форма')
 
+    if resp == []:
+        logging.error('Нет дз за указанный период')
+        raise Exception('Словарь пуст')
 
-# print(check_response(get_api_answer(1549962000)))
-# print(check_response(get_api_answer(1668164848)))
+    elif not isinstance(resp, list):
+        raise TypeError('Убедитесь, что передаётся список в словаре')
+    else:
+        logging.info('Ответ корректен')
+        return resp
+
 
 def parse_status(homework):
     """Перевод статуса дз из json на человеческий язык."""
-    if 'homework_name' not in homework.keys():
-        raise KeyError('Ошибка получения статуса или имени')
-    homework_name = homework['homework_name']
+    try:
+        homework_name = homework['homework_name']
+    except Exception:
+        raise KeyError('Ошибка получения имени')
 
-    if 'status' not in homework.keys():
+    try:
+        homework_status = homework['status']
+        verdict = HOMEWORK_STATUSES[homework_status]
+    except Exception:
         raise KeyError('Ошибка получения статуса')
-    homework_status = homework['status']
-
-    if homework_status not in HOMEWORK_STATUSES.keys():
-        raise KeyError('Передан некорректный статус')
-    verdict = HOMEWORK_STATUSES[homework_status]
 
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
-
-# print(parse_status(check_response(get_api_answer(1549962000))))
-# print(parse_status(check_response(get_api_answer(1668164848))))
-
-
-def namestr(obj, namespace):
-    """Извлечение названия переменной."""
-    return [name for name in namespace if namespace[name] is obj]
 
 
 def check_tokens():
@@ -128,18 +108,15 @@ def check_tokens():
     )
     for token in token_list:
         if token is None:
-            logger.critical(f'Отсутствует {namestr(token, globals())[0]}')
+            logger.critical('Отсутствует токен, проверьте файл .env')
             return False
-        else:
-            logger.debug(f'{namestr(token, globals())[0]} существует')
-    return True
 
-# check_tokens()
+    return True
 
 
 def main():
     """Основная логика работы бота."""
-    if check_tokens() is False:
+    if not check_tokens():
         raise Exception('Остутствуют ключи')
 
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
@@ -149,16 +126,13 @@ def main():
         try:
             response = get_api_answer(current_timestamp)
             homework = check_response(response)
-            # if homework is not None:
             message = parse_status(homework)
-            # else:
-            #     message = 'Нет ответа'
+            send_message(bot, message)
 
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
-
-        finally:
             send_message(bot, message)
+        finally:
             time.sleep(RETRY_TIME)
 
 
