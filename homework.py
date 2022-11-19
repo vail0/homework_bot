@@ -64,37 +64,32 @@ def get_api_answer(current_timestamp):
 
 def check_response(response):
     """Проверка корректности полученого json ответа."""
+    if not isinstance(response, dict):
+        raise TypeError('Убедитесь, что передаётся словарь')
+
     try:
-        resp = response.get('homeworks')
+        hwks = response.get('homeworks')
     except Exception:
-        if not isinstance(response, dict):
-            raise TypeError('Убедитесь, что передаётся словарь')
-        else:
-            raise KeyError('Прислана неверная форма')
+        raise KeyError('Прислана неверная форма')
 
-    if resp == []:
-        logging.error('Нет дз за указанный период')
-        raise Exception('Словарь пуст')
+    if hwks == []:
+        logging.info('Нет дз за указанный период')
 
-    elif not isinstance(resp, list):
+    elif not isinstance(hwks, list):
         raise TypeError('Убедитесь, что передаётся список в словаре')
-    else:
-        logging.info('Ответ корректен')
-        return resp
+
+    logging.info('Ответ корректен')
+    return hwks
 
 
 def parse_status(homework):
     """Перевод статуса дз из json на человеческий язык."""
     try:
         homework_name = homework['homework_name']
-    except Exception:
-        raise KeyError('Ошибка получения имени')
-
-    try:
         homework_status = homework['status']
         verdict = HOMEWORK_STATUSES[homework_status]
     except Exception:
-        raise KeyError('Ошибка получения статуса')
+        raise KeyError('Ошибка получения имени или статуса')
 
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
