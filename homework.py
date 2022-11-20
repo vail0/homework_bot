@@ -68,12 +68,9 @@ def check_response(response):
         raise TypeError('Убедитесь, что передаётся словарь')
 
     try:
-        hwks = response.get('homeworks')
+        hwks = response.get('homeworks')[0]
     except Exception:
         raise KeyError('Прислана неверная форма')
-
-    if not isinstance(hwks, list):
-        raise TypeError('Убедитесь, что передаётся список в словаре')
 
     logging.info('Ответ корректен')
     return hwks
@@ -113,16 +110,18 @@ def main():
 
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = 1549962000
-
     while True:
         try:
             response = get_api_answer(current_timestamp)
+            # print(response)
             homework = check_response(response)
-            if homework == []:
+            print(homework)
+            if not homework:
                 logging.info('Нет дз за указанный период')
-                message = 'За указаный период нет дз'
-            else:
-                message = parse_status(homework[0])
+                message = 'За указаный период нет изменений дз'
+                continue
+
+            message = parse_status(homework)
             send_message(bot, message)
 
         except Exception as error:
